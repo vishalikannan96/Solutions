@@ -1,0 +1,11 @@
+1)select sum(weight) from picked where plantfk = (select plantid from plant where name="corn");
+2)
+3.1) alter table gardener add column Exper int(30);
+3.2) alter table gardener modify Exper varchar(30);
+4)select name from plant where plantid = (select plantfk from planted where seeds<20 and date1 like "%14");
+5)select name,sunlight,water from plant where name like "c%" or "r%";
+6)select p1.name,sum(seeds) as total_amount from plant p1 join planted p2 on p1.plantid=p2.plantfk group by p1.name order by p1.name desc;
+7) select (p1.amount/p2.seeds) as Total_amount from picked p1 join planted p2 on p1.plantfk=p2.plantfk group by p1.plantfk;
+8)select g.name,p2.name,p1.date1,p1.amount from picked p1 join gardener g on p1.gardenerfk=g.gardenerid join plant p2 on p1.plantfk=p2.plantid where g.name="Tim" and p1.amount>20;
+9) select name from gardener where gardenerid in (select distinct p1.gardenerfk from picked p1 join planted p2 on p1.plantfk=p2.plantfk);
+10) create view plant_name1 as select distinct  p1.name from picked p join location l on p.locationfk=l.locationid join plant p1 on p.plantfk=p1.plantid where l.name<>"west" and month(date1)<>07;
