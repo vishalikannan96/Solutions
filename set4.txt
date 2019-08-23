@@ -2,16 +2,16 @@
 2)select h1.name,h1.grade,h2.name,h2.grade from likes l join highschooler h1 on h1.id=l.id1 join highschooler h2 on h2.id=l.id2 where (h1.grade-h2.grade)>=2;
 3)select h1.name,h1.grade,h2.name,h2.grade from highschooler h1,highschooler h2,likes l1,likes l2 where (h1.id=l1.id1 and h2.id=l1.id2) and (h2.id=l2.id1 and h1.id=l2.id2) and h1.id>h2.id order by h1.name,h2.name;
 4)select name,grade from highschooler where id not in (select distinct id1 from likes union select distinct id2 from likes) order by grade,name;
-5)
+5)select h1.name, h1.grade, h2.name, h2.grade from highschooler h1 join likes l on h1.id = l.id1 join highschooler h2 on h2.id = l.id2 where (h1.id = l.id1 and h2.id = l.id2) and h2.id not in (select distinct id1 FROM likes);
 6)select h1.name,h1.grade,h2.name,h2.grade from friend f join highschooler h1 on f.id1=h1.id join highschooler h2 on f.id2=h2.id where h1.grade=h2.grade order by h1.grade,h1.name;
 7)
 8)select count(name)-count(distinct name) as diff from highschooler;
 9)select l.id2,h.name,h.grade from highschooler h join  likes l on h.id=l.id2 group by l.id2 having count(*)>1;
-10)
+10)select name,grade from likes a join likes b join highschooler h on h.id=a.id1 or h.id=a.id2 or h.id=b.id1 where a.id1=b.id2 and a.id2!=b.id1;
 11)select h1.name,h1.grade,h2.name,h2.grade from friend f join highschooler h1 on f.id1=h1.id join highschooler h2 on f.id2=h2.id where h1.grade!=h2.grade;
 12)select avg(stu) as avg_friend from (select count(*)as stu from friend group by id1) stu1;
 13)select count(id2) from friend where id1 in (select f.id2 from highschooler h join friend f on h.id=f.id1 where h.name="cassandra");
-14) select * from (select name,grade,dense_rank() over(order by friends desc) as rank_stu from (select f.id1,h.name,count(id2) as friends,h.grade from highschooler h left join friend f on f.id1=h.id group by f.id1)rank1)rank2 where rank_stu=1;
+14)select * from (select name,grade,dense_rank() over(order by friends desc) as rank_stu from (select f.id1,h.name,count(id2) as friends,h.grade from highschooler h left join friend f on f.id1=h.id group by f.id1)rank1)rank2 where rank_stu=1;
 
 
 
