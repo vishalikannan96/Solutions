@@ -1,0 +1,22 @@
+1)select title from movie where director="Steven Spielberg";
+2)select year from movie where mid in (select mid from rating where stars in (4,5));
+3)select title from movie where mid not in (select mid from rating);
+4)select name from reviewer where rid in (select rid from  rating where ratingdate is null);
+5)select r1.name,m.title,r.stars,r.ratingdate from rating r join movie m on r.mid=m.mid join reviewer r1 on r1.rid=r.rid order by r1.name,m.title,r.stars;
+6)select title,name from rating r1 join rating r2 on r1.rid=r2.rid and r1.mid=r2.mid join movie m on r1.mid=m.mid join reviewer r on r.rid=r1.rid where r2.stars > r1.stars and r2.ratingdate > r1.ratingdate;
+7)select m.title,max(stars) from rating r join movie m on r.mid=m.mid group by m.title order by title;
+8)select m.title,max(stars)-min(stars) as rating_spread from rating r join movie m on r.mid=m.mid  group by r.mid order by rating_spread desc,title;
+9)select avg(m1.avg) - avg(m2.avg)  as highest_avg from (select  avg(stars) as avg from rating r join movie m on r.mid=m.mid where year < 1980 group by m.mId ) as m1, (select avg(stars) as avg from rating r join movie m on r.mid=m.mid where year > 1980 group by m.mId) as m2; 
+10)select distinct r1.name from rating r join reviewer r1 on r.rid=r1.rid join movie m on m.mid=r.mid where m.title="gone with the wind";
+11)select r.name,m.title,r1.stars from rating r1 join movie m on r1.mid=m.mid join reviewer r on r.rid=r1.rid where m.director=r.name;
+12)select distinct r1.name,m.title from rating r join movie m on r.mid=m.mid join reviewer r1 on r.rid=r1.rid order by r1.name,m.title;
+13)select title from movie where mid not in (select r.mid from rating r join reviewer r1 on r1.rid=r.rid where r1.name="chris jackson");
+14)select distinct re1.name,re2.name from rating r1 join rating r2 on r1.mid=r2.mid join reviewer re1 on r1.rid=re1.rid join reviewer re2 on r2.rid=re2.rid where r1.rid<r2.rid;
+15)select r1.name,m.title,r.stars from rating r join reviewer r1 on r.rid=r1.rid join movie m on m.mid=r.mid where r.stars = (select min(stars) from rating);
+16)select m.title,avg(stars) as average from rating r join movie m where r.mid=m.mid group by m.title order by average desc,m.title;
+17)select r.rid,r1.name from rating r join reviewer r1 on r.rid=r1.rid group by r.rid having count(r.rid)>=3;
+18)select director,group_concat(title) from movie group by director having count(director)>1 order by director;
+19)select m.title,avg(stars) from rating r join movie m on r.mid=m.mid group by m.title having avg(stars)=(select max(average) from (select avg(stars) as average from rating group by mid)emp);
+20)select m.title,avg(stars) from rating r join movie m on r.mid=m.mid group by m.title having avg(stars)=(select min(average) from (select avg(stars) as average from rating group by mid)emp);
+21)select director,title from (select director,max(average),title from (select m.title,avg(stars) as average,m.director from rating r join movie m on r.mid=m.mid group by title) as emp group by director) as mov where director is not null;
+
