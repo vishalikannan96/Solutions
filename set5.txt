@@ -2,8 +2,10 @@
 2)select m.m_name from musician m join place p on p.place_no=m.born_in join performer p1 on m.m_no=p1.perf_is where (p1.instrument="guitar" or p1.instrument="violin") and p.place_country="england";
 3)select m.m_name,p.place_town,c.con_date from concert c join place p on c.concert_in=p.place_no join musician m on m.m_no=c.concert_orgniser where p.place_country="usa";
 4)select m_name,con_date,concert_venue,c_title from musician m join composer c on m_no=comp_is join has_composed on comp_no=cmpr_no join composition on cmpn_no=c_no join performance on c_no=performed join concert on performed_in=concert_no where m_name='andy jones';
-5)
-6)select m.m_name,m.born,p.instrument from  performer p join musician m on m.m_no=p.perf_is where died is null and p.instrument in (select p.instrument from performer p join musician m on m.m_no=p.perf_is where m.m_name='Theo Mengel') and m_name !='Theo Mengel';
+5)select instrument,avg(ins) from (select instrument,perf_is,count(instrument) as ins from performer group by perf_is) emp group by instrument;
+6)select m.m_name,m.born,p.instrument from musician m join performer p on m.m_no=p.perf_is where died is null and instrument in (select instrument from musician m join performer p on m.m_no=p.perf_is where m.m_name="theo mengel") and m.m_name<>"theo mengel";
 7)select band_name,count(player) from plays_in join band on band_no=band_id group by band_name having count(player)> (select avg(number) from ( select count(player) number from plays_in group by band_id) mus);
 8)select m_name from musician join composer on m_no=comp_is join performance on comp_is=conducted_by join place on  place_no=living_in where place_country='Britain';
+9)select instrument,count(perf_is) from performer group by instrument having count(perf_is)=(select min(least) from (select instrument,count(perf_is) as least from performer group by instrument) as mus);
+10)select band_name,c_title from musician join composer on m_no=comp_is join has_composed on cmpr_no=comp_no join composition on c_no=cmpn_no join performance on performed=c_no join band on gave=band_no where m_name='Sue Little';
 
