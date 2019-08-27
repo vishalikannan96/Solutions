@@ -9,7 +9,8 @@
 9)select instrument,count(perf_is) from performer group by instrument having count(perf_is)=(select min(least) from (select instrument,count(perf_is) as least from performer group by instrument) as mus);
 10)select band_name,c_title from musician join composer on m_no=comp_is join has_composed on cmpr_no=comp_no join composition on c_no=cmpn_no join performance on performed=c_no join band on gave=band_no where m_name='Sue Little';
 11)select m.m_name,p.place_town from musician m join place p on m.born_in=p.place_no where p.place_town=(select p.place_town from place p join musician m on m.born_in=p.place_no where m.m_name="james first") and m.m_name<>"james first";
-12)
+12)select A.m_name,inscnt,compcnt from ((select m_name,count(instrument)as inscnt from musician left join performer on m_no=perf_is join place on born_in=place_no where place_country='England' group by m_name) A left join 
+(select m_name,count(cmpn_no) as compcnt from musician m left join composer c on m_no=comp_is left join has_composed on comp_no=cmpr_no join place p1 on born_in=place_no where place_country='Britain ' group by m_name) B on A.m_name=B.m_name); 
 13)select band_name,band_contact,m.m_name,conducted_by,m1.m_name from band b join performance p on band_no=gave join concert c on concert_no=performed_in join musician m on m.m_no=band_contact join musician m1 on m1.m_no=conducted_by 
 where concert_venue='Royal Albert Hall';
 14)select * from (select m2.m_name,case when p1.place_town="glasgow" then "born_in" end as status from musician m2 join place p1 on m2.born_in=p1.place_no)mov where status is not null
@@ -18,6 +19,9 @@ select * from (select m1.m_name,case when p1.place_town='Glasgow' then "LIVING_I
 union
 select * from (select m2.m_name,case when place_town='Glasgow' then "IN_BAND_IN" end as status from band b1 join place p1 on b1.band_home=p1.place_no join plays_in p2 on b1.band_no=p2.band_id join performer p3 on p3.perf_no = p2.player join musician m2 on m2.m_no=p3.perf_is)mov where status is not null;
 15)select m1.m_no,p1.band_id,b1.band_name from musician m1 join performer perf on perf_is=m_no join plays_in p1 on perf_no=player join band b1 on band_id=band_no where m1.m_name='Sue Little';
+
+
+
 
   
 
