@@ -1,5 +1,5 @@
 1)select sum(weight) from picked where plantfk = (select plantid from plant where name="corn");
-2)
+2)update picked set locationid = (select locationid from location where lower(name)='north') where gardenerid in (select g.gardenerid from gardener g where lower(g.name)='erin') and plantid in (select p.plantid from plant p where lower(p.name)='tomato');
 3.1) alter table gardener add column Exper int(30);
 3.2) alter table gardener modify Exper varchar(30);
 4)select name from plant where plantid = (select plantfk from planted where seeds<20 and date1 like "%14");
