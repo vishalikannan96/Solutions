@@ -4,7 +4,9 @@
 4)select name,grade from highschooler where id not in (select distinct id1 from likes union select distinct id2 from likes) order by grade,name;
 5)select h1.name, h1.grade, h2.name, h2.grade from highschooler h1 join likes l on h1.id = l.id1 join highschooler h2 on h2.id = l.id2 where (h1.id = l.id1 and h2.id = l.id2) and h2.id not in (select distinct id1 FROM likes);
 6)select h1.name,h1.grade,h2.name,h2.grade from friend f join highschooler h1 on f.id1=h1.id join highschooler h2 on f.id2=h2.id where h1.grade=h2.grade order by h1.grade,h1.name;
-7)
+7)select h1.name,h1.grade,h3.name,h3.grade,h2.name,h2.grade from likes l left join friend f on l.id1=f.id1 and l.id2=f.id2 
+join friend f1 on l.id1=f1.id1 join friend f2 on l.id2=f2.id1 join highschooler h1 on l.id1=h1.id 
+join highschooler h2 on f1.id2=h2.id join highschooler h3 on l.id2=h3.id where f.id1 is null and f.id2 is null and f1.id2=f2.id2; 
 8)select count(name)-count(distinct name) as diff from highschooler;
 9)select l.id2,h.name,h.grade from highschooler h join  likes l on h.id=l.id2 group by l.id2 having count(*)>1;
 10)select name,grade from likes a join likes b join highschooler h on h.id=a.id1 or h.id=a.id2 or h.id=b.id1 where a.id1=b.id2 and a.id2!=b.id1;
