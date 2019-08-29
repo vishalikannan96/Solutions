@@ -6,7 +6,6 @@ insert into dept(dept_id,dept_name,dept_manager)values("D02","COMMUNICATIONS","A
 insert into dept(dept_id,dept_name,dept_manager)values("D03","PRODUCT","BRUCE WILLS");
 insert into dept(dept_id,dept_name,dept_manager)values("D04","INSURANCE","ROBERT SWIFT");
 insert into dept(dept_id,dept_name,dept_manager)values("D05","FINANCE","NATASHA STEVENS"); 
-select * from dep;
 
 create table emp(emp_id varchar(5) primary key,emp_name varchar(20),dept_id varchar(10),salary int(20),man_id varchar(5),foreign key(dept_id) references dep(dept_id));
 
@@ -31,24 +30,33 @@ insert into emp(emp_id,emp_name,dept_id,salary,man_id) values("A194","HAROLLD ST
 insert into emp(emp_id,emp_name,dept_id,salary,man_id) values("A133","STEVE MICHELOS","D02",61215,"A187");
 insert into emp(emp_id,emp_name,dept_id,salary,man_id) values("A156","NICK MARTIN","D03",50174,"A178"); 
 
-1)select * from (select emp_id,emp_name,salary,dense_rank() over(order by salary desc) as emprank from emp) as top_sal where emprank<=3;
+1)select * from (select emp_id,emp_name,salary,dense_rank() over(order by salary desc) as emprank from emp) as top_sal 
+  where emprank<=3;
 2)select  emp_name,min(salary) from emp;
 3)select * from emp where emp_id in (select man_id from emp);
-4)select * from emp where emp_id in (select man_id from emp);
-5.1)select *from emp where salary=(select min(salary) from emp where emp_id in(select man_id from emp));
-6)select count(emp_id) from emp where dept_id in (select dept_id from dept where dept_name="comm");
-7)select * from emp where (dept_id,salary) in (select d.dept_id,max(salary) from emp e join dep d on e.dept_id=d.dept_id  where dept_name="finance");
-8)select * from emp where (dept_id,salary) in (select d.dept_id,min(salary) from emp e join dep d on e.dept_id=d.dept_id  where dept_name="product");
+4)select e.emp_id,e.emp_name from dept d left join emp e on e.emp_name=d.dept_manager;
+5)select emp_id,emp_name,salary from (select e.emp_id,e.emp_name,salary,dense_rank() over (order by salary) emp1 
+  from dept d left join emp e on e.emp_name=d.dept_manager)emp2 where emp1=1;
+6)select count(*) from emp e join dept d on e.dept_id=d.dept_id where d.dept_name="communication";
+7)select emp_id,emp_name,salary from(select e.emp_id,e.emp_name,e.salary,dense_rank() over(order by salary desc)emp1 
+  from emp e join dept d on e.dept_id=d.dept_id where dept_name="finance")emp2 where emp1=1;
+8)select emp_id,emp_name,salary from(select e.emp_id,e.emp_name,e.salary,dense_rank() over(order by salary)emp1 
+  from emp e join dept d on e.dept_id=d.dept_id where dept_name="product")emp2 where emp1=1;
 9)select count(*),max(salary) from emp e join dept d on e.dept_id=d.dept_id where d.dept_name="health";
-10)select * from emp where man_id = (select emp_id from emp where emp_name="Natasha Stevens");
-11)select group_concat(e.emp_name),count(*),d.dept_name,d.dept_manager from emp e join dep d on e.dept_id=d.dept_id where d.dept_name="health";
-12)select emp_id,man_id,dept_id from emp where dept_id =(select dept_id from dept where dept_name="health");
+10)select e2.emp_id,e2.emp_name,e2.salary from emp e1 join emp e2 on e1.emp_id=e2.man_id where e1.emp_name="NATASHA STEVENS";
+11)select group_concat(e.emp_name),count(*),d.dept_name,d.dept_manager from emp e join dep d on e.dept_id=d.dept_id 
+   where d.dept_name="health";
+12)select d.dept_id,e.emp_id,e.man_id from emp e join dept d on e.dept_id=d.dept_id where d.dept_name="communication";
 13)select e.dept_id,avg(salary),d.dept_name from emp e join dep d on e.dept_id=d.dept_id group by dept_id;
 14)select sum(salary) as total_expense from emp e join dept d on e.dept_id=d.dept_id where d.dept_name="finance";
-15)select d.dept_id,d.dept_manager,count(*) from emp e join dep d on e.dept_id=d.dept_id group by d.dept_id having count(*) =(select min(member) from (select dept_id,count(*) as member from emp group by dept_id) as count_emp);
+15)select * from (select dense_rank() over (order by sum) as min,dept_id,dept_name,dept_manager 
+   from (select d.dept_id,d.dept_name,d.dept_manager,sum(e.salary) sum from dept d join emp e on d.dept_id=e.dept_id 
+   group by e.dept_id)as A)as B where min=1;
 16)select dept_id,count(*) as count from emp group by dept_id;
 17)select dept_id,count(*) as count from emp where salary<10000 group by dept_id;
 18)select count(emp_id) as count from emp where dept_id='D04';
-19)select e.dept_id,d.dept_name,d.dept_manager,count(*) from emp e join dep d on e.dept_id=d.dept_id group by d.dept_id having count(*) =(select max(member) from (select dept_id,count(*) as member from emp group by dept_id) as count_emp);
-20)select emp_id,emp_name from emp where man_id in (select emp_id from emp where emp_name="TIM COOK");
-20.1)select emp_id,emp_name from emp where man_id = (select emp_id from emp where emp_name="TIM ARCHER");
+19)select * from (select dense_rank() over (order by count_emp desc) as min,dept_id,dept_name,dept_manager from 
+   (select d.dept_id,d.dept_name,d.dept_manager,count(e.emp_id) count_emp from dept d join emp e on d.dept_id=e.dept_id 
+   group by e.dept_id)as A)as B where min=1;
+20)select e2.emp_id,e2.emp_name,e2.salary from emp e1 join emp e2 on e1.emp_id=e2.man_id where e1.emp_name="TIM COOK";
+20.1)select e2.emp_id,e2.emp_name,e2.salary from emp e1 join emp e2 on e1.emp_id=e2.man_id where e1.emp_name="TIM ARCHER";
