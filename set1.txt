@@ -42,19 +42,24 @@ insert into Booking values('H437', 'G190', '1999-10-04', '1999-10-06', 223);
 insert into Booking values('H437', 'G879', '1999-09-14', '1999-09-17', 223);
 
 1)select * from hotel;
-1.1) select h.Hotel_no,h.Name,h.city,r.Room_no,r.type,r.price from Hotel H join Room r on r.Hotel_no=r.Hotel_no;
 2)select * from hotel where city="new york";
-2.2) select h.Hotel_no,h.Name,h.city,r.Room_no,r.type,r.price from Hotel H join Room r on r.Hotel_no=r.Hotel_no where city="New york";
 3)select Guest_name,Guest_city from Guest order by Guest_city;
 4)select * from Room where Type="N" order by price asc;
-5) select count(Hotel_no) as Hotel_count from Hotel;
+5)select count(Hotel_no) as Hotel_count from Hotel;
 6)select distinct Guest_city from Guest;
 7)select avg(price) from room;
 8)select h.name,r.Room_no,r.Type from Hotel h join Room r on h.Hotel_no=r.Hotel_no;
 9)select h.Name,b.Date_from,b.Date_to,b.Room_no from Hotel h join Booking b on h.Hotel_no=b.Hotel_no where h.City="New york";
 10)select count(*) from booking where extract(month from Date_from)=9;
-11)select Guest_name,Guest_city from Guest where Guest_no in (select Guest_no from Hotel h join Booking b on h.Hotel_no=b.Hotel_no where city="new york" and month(date_from)=8);
-12)select h.name,r.room_no from Hotel h join room r on h.Hotel_no=r.Hotel_no where (r.Hotel_no,r.Room_no) not in (select Hotel_no,room_no from booking);
-13) select h.name,h.city,max(price) from hotel h join room r on h.hotel_no=r.hotel_no group by h.name;
-14) select h.name,r.room_no,h.city,r.price from hotel h join room r on h.hotel_no=r.hotel_no where r.price < (select min(price) from room r join hotel h on h.hotel_no=r.hotel_no where h.city="Boston");
+11)select g.guest_name,g.guest_city from Hotel h join Booking b on h.Hotel_no=b.Hotel_no join 
+   guest g on g.guest_no=b.guest_no where city="new york" and month(date_from)=8;
+12)select h.name,r.room_no from Hotel h join room r on h.Hotel_no=r.Hotel_no where (r.Hotel_no,r.Room_no) not in 
+   (select Hotel_no,room_no from booking);
+13)select h.name,h.city,max(price) from hotel h join room r on h.hotel_no=r.hotel_no group by h.name;
+14)select h.name,r.room_no,h.city,r.price from hotel h join room r on h.hotel_no=r.hotel_no 
+   where r.price < (select min(price) from room r join hotel h on h.hotel_no=r.hotel_no where h.city="Boston");
 15)select h.city,avg(price) from hotel h join room r on h.hotel_no=r.hotel_no group by h.city;
+
+
+
+
