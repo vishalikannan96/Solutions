@@ -1,0 +1,63 @@
+1)select e.emp_id,e.emp_id,case when d.role_typ="lead" then "TEAM LEAD"  when d.desc_name is null 
+  then "unkown designation" else desc_name end as DESC_NAME,case when p.place_desc="newyork" then "USA" 
+  when p.place_desc is null then "others" else p.place_desc end as PLACE_DESC,case when p1.pro_name is null 
+  then "unkown project" else p1.pro_name end as PRO_NAME from emp1 e left join designation d on e.desc_id=d.desc_id 
+  left join place1 p on p.place_id=e.place_id left join project p1 on e.pro_id=p1.pro_id;
+2)select e.emp_id,e.emp_name,case when d.role_typ="developer" and p1.place_typ="offshore" then "teammember" 
+  when d.role_typ="developer" and p1.place_typ="nearshore" then "teamleader" when d.role_typ="developer" and 
+  p1.place_typ="onshore" then "BA" when d.role_typ="lead" and p1.place_typ="onshore" then "scrummaster" 
+  when d.role_typ is not null or p1.place_typ is not null then "contractor" else "shadow" end as PROJECT_ROLE from 
+  emp1 e left join project p on e.pro_id=p.pro_id left join designation d on e.desc_id=d.desc_id left join 
+  place1 p1 on e.place_id=p1.place_id;
+3)select coalesce(d.role_typ,"others") as DESC_NAME,coalesce(p.place_desc,"others") as PLACE_DESC,
+  coalesce(p1.pro_name,"others") as PRO_NAME,count(e.emp_id) from emp1 e left join designation d on 
+  e.desc_id=d.desc_id and d.role_typ="developer" left join place1 p on e.place_id=p.place_id and d.role_typ="developer" 
+  left join project p1 on p1.pro_id=e.pro_id and d.role_typ="developer" group by d.role_typ,p.place_desc,p1.pro_name;
+4)select e.emp_name,d.desc_name,p.place_desc,p1.pro_name from emp1 e full outer join designation d on 
+  e.desc_id=d.desc_id full outer join place1 p on e.place_id=p.place_id full outer join project p1 on p1.pro_id=e.pro_id;
+4.1)select coalesce(e.emp_name,"others"),coalesce(d.desc_name,"others"),coalesce(p.place_desc,"others"),
+  coalesce(p1.pro_name,"others") from emp1 e left join designation d on e.desc_id=d.desc_id 
+  left join place1 p on e.place_id=p.place_id left join project p1 on p1.pro_id=e.pro_id union 
+  select coalesce(e.emp_name,"others"),coalesce(d.desc_name,"others"),coalesce(p.place_desc,"others"),
+  coalesce(p1.pro_name,"others") from emp1 e right join designation d on e.desc_id=d.desc_id right join 
+  place1 p on e.place_id=p.place_id right join project p1 on p1.pro_id=e.pro_id;
+5)select s.sal_name,s.city,c.cust_name,c.city from cust c join salesman s on c.sal_id=s.sal_id where s.city <> c.city;
+6)select sal_id,sal_name,target,sum from(select s.sal_id,s.sal_name,s.target,coalesce(sum(c.pur_amt),0) as sum 
+  from salesman s left join cust c on s.sal_id=c.sal_id group by s.sal_id)a where target<=sum;
+7)select cust_id,cust_name,city,priority_num,pur_amt from(select cust_id,cust_name,city,priority_num,pur_amt,
+  dense_rank() over(partition by priority_num order by pur_amt desc) as a from cust)b where a in (1,2);
+7.1)select cust_id,cust_name,city,priority_num,pur_amt from (select cust_id,cust_name,city,priority_num,pur_amt,
+  dense_rank() over(order by priority_num,pur_amt desc) as a from cust)b where a<=2 union 
+  select cust_id,cust_name,city,priority_num,pur_amt from (select cust_id,cust_name,city,priority_num,pur_amt,
+  dense_rank() over(order by priority_num desc,pur_amt desc) as a from cust)b where a<=2;
+8)select sal_id,sal_name,target,sum from(select s.sal_id,s.sal_name,s.target,coalesce(sum(c.pur_amt),0) as sum,
+  avg(s.target)over ()as avg_target from salesman s left join cust c on s.sal_id=c.sal_id group by s.sal_id)a 
+  where sum<avg_target;
+9)select distinct man_name,sal_name,sum,target from (select s1.sal_name as man_name,s2.sal_name as sal_name,c.cust_name 
+  as cust_name,sum(pur_amt)over(partition by s1.sal_name) as sum,s1.target from salesman s1 join salesman s2 on 
+  s1.sal_id=s2.man_id join cust c on s2.sal_id =c.sal_id)a where sum>target;
+10)select s.student_name,c.city_name,c1.class from student s left join student_details sd on 
+   s.student_detail_id=sd.student_detail_id left join city c on sd.city_id=c.city_id left join class c1 
+   on c1.class_id=sd.class_id group by s.student_name having max(sd.start_date);
+10.1)select * from(select s.student_name,c.city_name,c1.class,sd.start_date,row_number()over 
+   (partition by s.student_name order by sd.start_date) as rank1 from student s left join student_details sd  
+   on s.student_detail_id=sd.student_detail_id left join city c on sd.city_id=c.city_id left join class c1 on
+   c1.class_id=sd.class_id)a where rank1=1;
+11)select Student_name,City_name,class,Classroom_num from student  a inner join student_details b
+   on a.Student_Detail_Id=b.Student_Detail_Id and b.start_date <= current_date and b.end_date >= current_date
+   inner join  city c on b.City_id=c.City_id inner join class d on b.Class_id=d.Class_id 
+   and d.start_date <= current_date and d.end_date >= current_date;
+12)select distinct s.student_name from student s left join student_details sd on s.student_detail_id=sd.student_detail_id 
+   left join city c on sd.city_id=c.city_id left join class c1 on c1.class_id=sd.class_id where c.city_name="chennai" or
+   c1.classroom_num in(301,310,320);
+13)select substr(cust_name,3,length(cust_name)-2) from customer;
+14)select substr(cust_name,instr(cust_name,"a",2),length(cust_name)-1) from customer;
+15)select pub_name from pub where pub_name like "%A%" or pub_name like "%U%" or pub_name like "%R%";
+15.1)select pub_name from pub where pub_name like any("%A%","%U%","%R%");
+
+
+
+
+
+
+
