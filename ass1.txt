@@ -1,0 +1,33 @@
+create table employee (emp_id int(3) primary key,emp_name char(10),emp_sal int(5),dept_id int(3));
+insert into employee values(10,"vivek",2000,1);
+insert into employee values(20,"raj",3000,1);
+insert into employee values(30,"vinoth",4000,1);
+insert into employee values(40,"abhishek",5000,2);
+insert into employee values(50,"divya",6000,2);
+insert into employee values(60,"chitra",7000,3);
+
+create table employee (emp_id int(3) primary key,emp_name char(10),emp_sal int(5),dept_id int(3),foreign key(dept_id) references department(dept_id));
+insert into department values(1,"IT");
+insert into department values(2,"admin");
+insert into department values(4,"HR");
+
+1)select d.dept_id,d.dept_name,sum(case when emp_sal is null then 0 else emp_sal end) as sal from department d left join employee e on d.dept_id=e.dept_id group by d.dept_id;
+1.1)select d.dept_id,d.dept_name,coalesce(sum(emp_sal),0) as sal from department d left join employee e on d.dept_id=e.dept_id group by d.dept_id;
+2)select e.dept_id,case when dept_name is null then "others" else dept_name end as Dep_name,sum(emp_sal) as sum_emp_sal from employee e left join department d on d.dept_id=e.dept_id group by d.dept_id;
+2.1) select e.dept_id,coalesce(dept_name,"others"),sum(emp_sal) as sum_emp_sal from employee e left join department d on d.dept_id=e.dept_id group by d.dept_id;
+3)select emp_id,emp_name,manager_id,emp_sal from employee where emp_sal>=2700 and emp_sal<=10000;
+4)select e2.manager_id,e1.emp_name,sum(e2.emp_sal) from employee e1 join employee e2 on e1.emp_id=e2.manager_id group by e2.manager_id;
+5)select emp_id,substr(emp_name,4) from employee;
+5.1)select emp_id,right(emp_name,length(emp_name)-3) from employee;
+6)select emp_id,substr(emp_name,locate("h",emp_name)+1) from employee;
+6.1)select emp_id,substr(emp_name,instr(emp_name,"h")+1) from employee;
+7) select emp_id,emp_name,emp_sal from(select emp_id,emp_name,emp_sal,dense_rank() over (order by emp_sal desc) as emp_salary from employee)emp where emp_salary=2;
+8)select emp_id,emp_name,emp_sal from(select emp_id,emp_name,emp_sal,dense_rank() over (order by emp_sal desc) as emp_salary from employee)emp where emp_salary<=3;
+9)select emp_id,emp_name,dept_name,emp_sal from employee where (dept_name="it" and emp_sal>3000) or (dept_name="admin" and emp_sal>3400);
+10)select * from employee where emp_name like "%j%";
+11)select * from employee where emp_name like "%j%" or emp_name like "%n%" or emp_name like "%m%";
+12)select * from employee where emp_name like "%b%" && emp_name like "%h%" && emp_name like "%e%";
+
+
+
+
