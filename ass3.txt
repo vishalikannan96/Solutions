@@ -1,0 +1,25 @@
+1)select e.emp_id,e.emp_name,coalesce(d.desc_name,"others"),coalesce(p.place_desc,"others"),
+  count(*)over(partition by d.desc_name) as 
+  emp_desc_cnt,count(*)over(partition by p.place_desc) as 
+  emp_place_cnt from emp1 e left join designation d on e.desc_id=d.desc_id left join place1 p on  e.place_id=p.place_id 
+  left join project p1 on p1.pro_id=e.pro_id;
+1.1)select e.emp_id,e.emp_name,coalesce(d.desc_name,"others"),coalesce(p.place_desc,"others"),
+  count(case when d.desc_id is null then 0 else d.desc_id end)over(partition by d.desc_name) as 
+  emp_desc_cnt,count(case when p.place_id is null then 0 else p.place_id end)over(partition by p.place_desc) as 
+  emp_place_cnt from emp1 e left join designation d on e.desc_id=d.desc_id left join place1 p on  e.place_id=p.place_id 
+  left join project p1 on p1.pro_id=e.pro_id;
+2)select e.emp_id,e.emp_name,coalesce(d.desc_name,"others"),coalesce(p.place_desc,"others"),p1.pro_name from emp1 e 
+  left join designation d on e.desc_id=d.desc_id left join place1 p on  e.place_id=p.place_id left join project 
+  p1 on p1.pro_id=e.pro_id where p1.pro_name like "%data%" or p1.pro_name like "%cloud%";
+3)select emp_id,emp_name,desc_id,place_desc,pro_name from(select e.emp_id,e.emp_name,d.desc_id,p.place_desc,
+  p1.pro_name,dense_rank()over(partition by p.place_id order by d.desc_id desc,p1.pro_id) as rank1 from emp1 e 
+  join designation d on e.desc_id=d.desc_id join place1 p on  e.place_id=p.place_id join project p1 on p1.pro_id=e.pro_id)a 
+  where rank1=1;
+4)select man_name,cust_name from( select s1.sal_name as man_name,s2.sal_name as sal_name,c.cust_name,c.pur_amt,dense_rank()
+  over(partition by s1.sal_name order by c.pur_amt desc) as rank1 from salesman s1 join salesman s2 on s1.sal_id=s2.man_id 
+  join cust c on s2.sal_id=c.sal_id)a where rank1=1;
+5)update sal s join (select sal_id,sum(pur_amt) as sum1 from cust group by sal_id)a  on s.sal_id=a.sal_id set 
+  s.target=a.sum1;
+5.1)update sal s,(select sal_id,sum(pur_amt) as sum1 from cust group by sal_id)a set s.target=a.sum1 where 
+   s.sal_id=a.sal_id;
+
