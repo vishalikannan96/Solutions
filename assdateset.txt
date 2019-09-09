@@ -126,11 +126,11 @@ trip dataset
   t1.trip_des=t2.trip_source where (t1.trip_source="chn" and t2.trip_des="bgl") or (t1.trip_source="chn" and 
   t1.trip_des="bgl") and t1.trip_start_time<"11:00:00" group by t1.trip_source,t1.trip_des,t2.trip_source;
 8)select from (select t1sou,t1des,t2des,t3des,addtime(traveltime1,addtime(traveltime2,traveltime3)) as traveltime,dense_rank  ()over (order by addtime(traveltime1,addtime(traveltime2,traveltime3))) as rank1,samedaytime from (select   t1sou,t1des,t2des,t3des,samedaytime,
-  case when t1start > t1end then timediff("24:00:00",timediff(t1start,t1end)) else timediff(t1end,t1start) end as   traveltime1,
-  case when t2start > t2end then timediff("24:00:00",timediff(t2start,t2end)) else timediff(t2end,t2start) end as   traveltime2,
+  case when t1start > t1end then timediff("24:00:00",timediff(t1start,t1end)) else timediff(t1end,t1start) end as traveltime1,
+  case when t2start > t2end then timediff("24:00:00",timediff(t2start,t2end)) else timediff(t2end,t2start) end as traveltime2,
   case when t3start > t3end then timediff("24:00:00",timediff(t3start,t3end)) else timediff(t3end,t3start) end as traveltime3
-  from(
-  select t1.trip_source as t1sou,t1.trip_des as t1des,t1.trip_start_time as t1start,t1.trip_end_time as t1end,t2.trip_source   as t2sou,t2.trip_des as t2des,t2.trip_start_time as t2start,t2.trip_end_time as t2end,
+  from(select t1.trip_source as t1sou,t1.trip_des as t1des,t1.trip_start_time as t1start,t1.trip_end_time as t1end,
+  t2.trip_source as t2sou,t2.trip_des as t2des,t2.trip_start_time as t2start,t2.trip_end_time as t2end,
   case when t2.trip_des="chn" then null else t3.trip_source end as t3sou,
   case when t2.trip_des="chn" then null else t3.trip_des end as t3des,
   case when t2.trip_des="chn" then "00:00:00" else t3.trip_start_time end as t3start,
@@ -147,7 +147,6 @@ trip dataset
   timediff("24:00:00",timediff(trip_start_time,trip_end_time)) else timediff(trip_end_time,trip_start_time) end as 
   traveltime,dynamic_fare from trip)a)b where rank1=1 and dynamic_fare="N";
 
-
 rainfall
 
 1)select * from(select st.city,temp_farenheit,rain_inch,dense_rank() over(partition by stats_id order by temp_farenheit     desc,rain_inch desc)as a from stats s  join station st on s.stats_id=st.station_id)as s where a=1;
@@ -159,11 +158,18 @@ rainfall
   temp_farenheit,rain_inch,avg(rain_inch) over() as avg_rain,avg(temp_farenheit) over() as avg_temp from stats s 
   join station s1 on s.stats_id=s1.station_id) as rain_temp where avg_rain<rain_inch and avg_temp > temp_farenheit) as 
   max_rain where rank_avg=1;
-6)select * from (select city,satate,temp_farenheit,avg,dense_rank()over(order by temp_farenheit) as rank1 from(select   s1.city,s1.satate,s.temp_farenheit,avg(s.temp_farenheit)over() avg from stats s join station s1 on   s.stats_id=s1.station_id)a where temp_farenheit<avg)b where rank1=2;
-9)select city,state,rain_inch,avg_rain,avg_temp from (select city,state,temp_farenheit,rain_inch,avg_rain,avg_temp,
-  dense_rank() over(partition by state order by avg_rain desc,avg_temp desc) rank_avg from (select city,state,
-  temp_farenheit,rain_inch,avg(rain_inch) over() as avg_rain,avg(temp_farenheit) over() as avg_temp from stats s 
-  join station s1 on s.stats_id=s1.station_id) as rain_temp where avg_rain<rain_inch and avg_temp > temp_farenheit) as 
-  max_rain where rank_avg=1;
+5)select city,satate,rain_inch,avg from (select city,satate,rain_inch,dense_rank()over(order by rain_inch desc) as rank1,
+  avg from(select s1.city,s1.satate,temp_farenheit,rain_inch,avg(rain_inch) over() as avg from stats s join station s1 on  
+  s.stats_id=s1.station_id)a where rain_inch<avg)a where rank1=1 ;
+6)select * from (select city,satate,temp_farenheit,avg,dense_rank()over(order by temp_farenheit) as rank1 from
+  (select   s1.city,s1.satate,s.temp_farenheit,avg(s.temp_farenheit)over() avg from stats s join station s1 on 
+  s.stats_id=s1.station_id)a where temp_farenheit<avg)b where rank1=2;
+9)select station_id,city,satate,month,celcius from (select st.station_id,st.city,st.satate,s.month,s.year,
+  round((temp_farenheit-32)*(5/9),2) as celcius from station st join stats s on st.station_id=s.stats_id)a 
+  where celcius<0;
+10)select city,satate,count(city)from (select s1.city,s1.satate,s.month,s.rain_inch,avg(s.rain_inch)over() as avg 
+  from stats s    join station s1 on s.stats_id=s1.station_id)a where rain_inch>avg group by city;
+
+
 
 
