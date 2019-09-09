@@ -1,0 +1,169 @@
+					
+craete table author(author_id varchar(10) primary key,aythor_name char(25),author_country char(20),author_city char(20),pub_id varchar(5));
+
+insert into author values("AUT001","William Norton","UK","Cambridge","pb01");
+insert into author values("AUT002","C.J.Wilde","USA","San Francisco","pb04");
+insert into author values("AUT003","John Betjeman Hunter","SUSSIA","Moscow","pb01");
+insert into author values("AUT004","John Betjeman Hunter","CANADA","Toronto","pb03");
+insert into author values("AUT005","S.B.Swaminathan","INDIA","Delhi","pb01");
+insert into author values("AUT006","Butler Andre","UK","London","pb03");
+insert into author values("AUT007","E.Howard","EUROPE","Berlin","pb03");
+insert into author values("AUT008","Andrew Jeff","GERMANY","Berlin","pb02");
+insert into author values("AUT009","Drek Tailor","Australia","Melboume","pb01");
+insert into author values("AUT010","Mary Coffing","USA","New Jersy","pb04");
+
+
+create table pub(pub_id varchar(5) primary key,pub_name char(25),pub_city char(20),pub_start_date date,branches int);
+
+
+insert into pub(pub_id,pub_name,pub_city,pub_start_date,branches) values("pb01","Jex Max Publication","Berlin",str_to_date("4/21/1929","%m/%d/%Y"),10);
+insert into pub(pub_id,pub_name,pub_city,pub_start_date,branches) values("pb02","Summer Night Publication","Canada",str_to_date("8/31/2019","%m/%d/%Y"),25);
+insert into pub(pub_id,pub_name,pub_city,pub_start_date,branches) values("pb03","Novel Publisher Ltd","London",str_to_date("8/10/2018","%m/%d/%Y"),11);
+insert into pub(pub_id,pub_name,pub_city,pub_start_date,branches) values("pb04","Mark Book Sales","New Jersy",str_to_date("5/24/2008","%m/%d/%Y"),9);
+
+create table trip(trip_id varchar(5) primary key,trip_source char(5),trip_des char(5),trip_start_time time,trip_end_time time,trip_cost int,dynamic_fare char(5));
+
+
+insert into trip values("TP01","CHN","BGL","13:40","15:40",3500,"Y");
+insert into trip values("TP02","BGL","MUM","18:20","19:20",6700,"Y");
+insert into trip values("TP03","CHN","HYD","9:45","11:10",3000,"Y");
+insert into trip values("TP04","HYD","BGL","12:20","13:25",2700,"N");
+insert into trip values("TP05","MUM","NDL","23:00","1:25",4500,"Y");
+insert into trip values("TP06","BGL","NDL","19:40","22:10",5000,"N");
+insert into trip values("TP07","NDL","MUM","16:45","17:50",6000,"Y");
+insert into trip values("TP08","MUM","BGL","20:20","23:45",5000,"N");
+insert into trip values("TP09","NDL","HYD","11:25","13:45",3000,"N");
+insert into trip values("TP10","HYD","CHN","20:30","22:20",4500,"Y");
+insert into trip values("TP11","BGL","CHN","23:45","1:05",3900,"Y");
+
+create table stats(stats_id int,month int,year int,temp_farenheit float(5,1),rain_inch float(5,2));
+
+insert into stats values(13,1,2010,57.4,0.31);
+insert into stats values(13,5,2010,91.7,5.15);
+insert into stats values(13,12,2010,12.6,8.34);
+insert into stats values(13,9,2010,100.3,10.34);
+insert into stats values(44,9,2010,27.2,3.45);
+insert into stats values(44,2,2010,27.3,0.18);
+insert into stats values(44,6,2010,74.8,2.11);
+insert into stats values(66,3,2010,6.7,2.1);
+insert into stats values(66,7,2010,65.8,4.52);
+
+
+create table station(station_id int primary key,city char(10),satate char(5),lat_n int,lon_w int);
+
+insert into station values (13,"Phoenix","AZ",33,112);
+insert into station values (44,"Denver","CO",40,105);
+insert into station values (66,"Caribou","ME",47,68);
+
+author set
+
+1)select distinct p.pub_id,p.pub_name,p.pub_city,p.pub_start_date,p.branches from pub p join author a on p.pub_id=a.pub_id 
+  where p.pub_city<>a.author_city and p.pub_city=a.author_country;
+2)select author_name,author_country,pub_start_date,branches from (select a.aythor_name,a.author_country,
+  p.pub_start_date,branches,dense_rank()over(partition by round((year(pub_start_date)/100)+1) order by branches desc) 
+  as rank1 from pub p join author a on a.pub_id=p.pub_id)b where rank1=1;
+3)select a.author_id,a.aythor_name,a.author_country,a.author_city,p.pub_id,p.pub_name,p.pub_city from pub p 
+  join author a on a.pub_id=p.pub_id where a.author_country in (select author_country from pub p join author a 
+  on a.pub_id=p.pub_id and a.author_city=p.pub_city);
+4)select a.author_id,a.aythor_name,a.author_country,a.author_city,p.pub_id,p.pub_name,p.pub_city from pub p join author a 
+  on a.pub_id=p.pub_id where a.author_country in (select author_country from pub p join author a on a.pub_id=p.pub_id and 
+  a.author_city=p.pub_city);
+5)select a.author_id,a.aythor_name,a.author_country,a.author_city,p.pub_id,p.pub_name,p.pub_city from pub p 
+  join author a on a.pub_id=p.pub_id where a.author_country in (select author_country from pub p join author a 
+  on a.pub_id=p.pub_id and a.author_city<>p.pub_city);
+6)select * from pub p join author a on a.pub_id=p.pub_id and substr(p.pub_name,1,1)=substr(a.aythor_name,1,1);
+7)select aythor_name from author where locate(".",aythor_name,locate(".",aythor_name)+1);
+8)select aythor_name from author where aythor_name not like "_.%";
+9)select author_country from author where binary(author_country) rlike "[a-z]";
+9.1)select author_country from author where ascii(lower(substr(author_country,2)))=ascii(substr(author_country,2));
+
+trip dataset
+
+1)select trip_source,trip_des,sum from(select trip_source,trip_des,sum,dense_rank()over(order by sum) as rank1 
+  from(select t1.trip_source as trip_source,t1.trip_des as t1trip,t2.trip_des as t2trip,t3.trip_des as trip_des,
+  t1.trip_cost+t2.trip_cost+t3.trip_cost as sum from trip t1 join trip t2 on t1.trip_des=t2.trip_source join trip t3 
+  on t2.trip_des=t3.trip_source where t1.trip_source="chn" and t3.trip_des="ndl")a)b where rank1=1;
+
+2)select t1sou,t3des,sum from (select t1sou,t3des,addtime(time1,addtime(time2,time3)) as sum,
+  dense_rank()over(order by addtime(time1,addtime(time2,time3))) as rank1 from (select t1.trip_source as t1sou,
+  t1.trip_des as t1des,t2.trip_des as t2des,t3.trip_des as t3des,case when t1.trip_start_time<t1.trip_end_time 
+  then timediff(t1.trip_end_time,t1.trip_start_time) else timediff("24:00:00",timediff(t1.trip_start_time,t1.trip_end_time))
+  end as time1,case when t2.trip_start_time<t2.trip_end_time then timediff(t2.trip_end_time,t2.trip_start_time) 
+  else timediff("24:00:00",timediff(t2.trip_start_time,t2.trip_end_time)) end as time2,case 
+  when t3.trip_start_time<t3.trip_end_time then timediff(t3.trip_end_time,t3.trip_start_time) 
+  else timediff("24:00:00",timediff(t3.trip_start_time,t3.trip_end_time)) end as time3 from trip t1 join trip t2 
+  on t1.trip_des=t2.trip_source join trip t3 on t2.trip_des=t3.trip_source where 
+  t1.trip_source="chn" and t3.trip_des="ndl")a)b where rank1=1;
+
+3)select * from (select t1sou,t1des,t2des,t3sou,t3des,count1+count2+count3 as sum,dense_rank()
+  over(order bycount1+count2+count3) as rank1 from (select t1.trip_source as t1sou,t1.trip_des as t1des,t2.trip_source 
+  as t2sou,t2.trip_des as t2des,t3.trip_source as t3sou,t3.trip_des as t3des,count(case when t1.dynamic_fare="y" 
+  then t1.dynamic_fare end) over(partition by t1.trip_source,t1.trip_des) as count1,count(case when t2.dynamic_fare="y" 
+  then t1.dynamic_fare end) over(partition by t2.trip_source,t2.trip_des) as count2,count(case when t3.dynamic_fare="y" 
+  then t3.dynamic_fare end) over(partition by t3.trip_source,t3.trip_des) as count3 from trip t1 join trip t2 on 
+  t1.trip_des=t2.trip_source join trip t3 on t2.trip_des=t3.trip_source where t1.trip_source="chn" and 
+  t3.trip_des="ndl")a)b where rank1=1;
+4)select t1sou,t1des,t2des,t3des from (select t1.trip_source as t1sou,t1.trip_des as t1des,t2.trip_source as t2sou,
+  t2.trip_des as t2des,t3.trip_source as t3sou,t3.trip_des as t3des,timediff(t3.trip_end_time,t1.trip_start_time) 
+  as time1 from trip t1 join trip t2 on t1.trip_des=t2.trip_source join trip t3 on t2.trip_des=t3.trip_source 
+  where t1.trip_source="chn" and t3.trip_des="ndl")a where time1>0;
+5)select * from (select t1.trip_source as t1sou,t1.trip_des as t1des,t2.trip_source as t2sou,t2.trip_des as t2des,
+  t3.trip_source as t3sou,t3.trip_des t3des,addtime(timediff(t2.trip_start_time,t1.trip_end_time),
+  timediff(t3.trip_start_time,t2.trip_end_time)) as waiting_time,dense_rank()over(order by 
+  addtime(timediff(t2.trip_start_time,t1.trip_end_time),timediff(t3.trip_start_time,t2.trip_end_time))) as rank1 
+  from trip t1 join trip t2 on t1.trip_des=t2.trip_source join trip t3 on t2.trip_des=t3.trip_source 
+  where t1.trip_source="chn" and t3.trip_des="ndl")a where rank1=1;
+6)select t1sou,t1des,t2sou,t2des,t3sou,t3des from (select t1sou,t1des,t2sou,t2des,t3sou,t3des,case when t3sou is null 
+  then 1 else 2 end as rank1 from (select t1.trip_source as t1sou,t1.trip_des as t1des,case when t1.trip_des="chn" then 
+  null else t2.trip_source end as t2sou,
+  case when t1.trip_des="chn" then null else t2.trip_des end as t2des,case when t2.trip_des="chn" then null
+  else t3.trip_source end as t3sou,case when t2.trip_des="chn" then null else t3.trip_des end as t3des from trip t1
+  join trip t2 on t1.trip_des=t2.trip_source join trip t3 on t2.trip_des=t3.trip_source where (t1.trip_source="ndl"
+  and t2.trip_des="chn") or (t1.trip_source="ndl" and t1.trip_des="chn") or (t1.trip_source="ndl" and t3.trip_des="chn")
+  group by t1.trip_source,t1.trip_des,t2.trip_source,t2.trip_des,t3.trip_source)a)b where rank1=1;
+7)select t1.trip_source,t1.trip_des,case when t1.trip_des="bgl" then null else t2.trip_source end as t2sou,
+  case when t1.trip_des="bgl" then null else t2.trip_des end as t2sou from trip t1 join trip t2 on 
+  t1.trip_des=t2.trip_source where (t1.trip_source="chn" and t2.trip_des="bgl") or (t1.trip_source="chn" and 
+  t1.trip_des="bgl") and t1.trip_start_time<"11:00:00" group by t1.trip_source,t1.trip_des,t2.trip_source;
+8)select from (select t1sou,t1des,t2des,t3des,addtime(traveltime1,addtime(traveltime2,traveltime3)) as traveltime,dense_rank  ()over (order by addtime(traveltime1,addtime(traveltime2,traveltime3))) as rank1,samedaytime from (select   t1sou,t1des,t2des,t3des,samedaytime,
+  case when t1start > t1end then timediff("24:00:00",timediff(t1start,t1end)) else timediff(t1end,t1start) end as   traveltime1,
+  case when t2start > t2end then timediff("24:00:00",timediff(t2start,t2end)) else timediff(t2end,t2start) end as   traveltime2,
+  case when t3start > t3end then timediff("24:00:00",timediff(t3start,t3end)) else timediff(t3end,t3start) end as traveltime3
+  from(
+  select t1.trip_source as t1sou,t1.trip_des as t1des,t1.trip_start_time as t1start,t1.trip_end_time as t1end,t2.trip_source   as t2sou,t2.trip_des as t2des,t2.trip_start_time as t2start,t2.trip_end_time as t2end,
+  case when t2.trip_des="chn" then null else t3.trip_source end as t3sou,
+  case when t2.trip_des="chn" then null else t3.trip_des end as t3des,
+  case when t2.trip_des="chn" then "00:00:00" else t3.trip_start_time end as t3start,
+  case when t2.trip_des="chn" then "00:00:00" else t3.trip_end_time end as t3end,
+  timediff(t3.trip_end_time,t1.trip_start_time) as samedaytime from trip t1 join trip t2
+  on t1.trip_des=t2.trip_source join trip t3 on t2.trip_des=t3.trip_source where (t1.trip_source="ndl" and t3.trip_des="chn")
+  or (t1.trip_source="ndl" and t2.trip_des="chn"))a)b)c where samedaytime>0 or rank1=1;
+9)select * from(select trip_id,trip_source,trip_des,traveltime,dense_rank()over(order by traveltime) as rank1 
+  from (select trip_id,trip_source,trip_des,case when trip_start_time > trip_end_time then 
+  timediff("24:00:00",timediff(trip_start_time,trip_end_time)) else timediff(trip_end_time,trip_start_time) 
+  end as traveltime from trip)a)b where rank1=1;
+10)select * from(select trip_id,trip_source,trip_des,traveltime,dense_rank()over(order by traveltime desc) as 
+  rank1,dynamic_fare from (select trip_id,trip_source,trip_des,case when trip_start_time > trip_end_time then 
+  timediff("24:00:00",timediff(trip_start_time,trip_end_time)) else timediff(trip_end_time,trip_start_time) end as 
+  traveltime,dynamic_fare from trip)a)b where rank1=1 and dynamic_fare="N";
+
+
+rainfall
+
+1)select * from(select st.city,temp_farenheit,rain_inch,dense_rank() over(partition by stats_id order by temp_farenheit     desc,rain_inch desc)as a from stats s  join station st on s.stats_id=st.station_id)as s where a=1;
+2)select st.station_id,st.city,st.satate,s.month,s.year,round((temp_farenheit-32)*(5/9),2) as celcius,
+  round((s.rain_inch*03937),2) as cm from station st join stats s on st.station_id=s.stats_id;
+3)
+4)select city,satate,rain_inch,avg_rain,avg_temp from (select city,satate,temp_farenheit,rain_inch,avg_rain,avg_temp,
+  dense_rank() over(partition by satate order by avg_rain desc,avg_temp desc) rank_avg from (select city,satate,
+  temp_farenheit,rain_inch,avg(rain_inch) over() as avg_rain,avg(temp_farenheit) over() as avg_temp from stats s 
+  join station s1 on s.stats_id=s1.station_id) as rain_temp where avg_rain<rain_inch and avg_temp > temp_farenheit) as 
+  max_rain where rank_avg=1;
+6)select * from (select city,satate,temp_farenheit,avg,dense_rank()over(order by temp_farenheit) as rank1 from(select   s1.city,s1.satate,s.temp_farenheit,avg(s.temp_farenheit)over() avg from stats s join station s1 on   s.stats_id=s1.station_id)a where temp_farenheit<avg)b where rank1=2;
+9)select city,state,rain_inch,avg_rain,avg_temp from (select city,state,temp_farenheit,rain_inch,avg_rain,avg_temp,
+  dense_rank() over(partition by state order by avg_rain desc,avg_temp desc) rank_avg from (select city,state,
+  temp_farenheit,rain_inch,avg(rain_inch) over() as avg_rain,avg(temp_farenheit) over() as avg_temp from stats s 
+  join station s1 on s.stats_id=s1.station_id) as rain_temp where avg_rain<rain_inch and avg_temp > temp_farenheit) as 
+  max_rain where rank_avg=1;
+
+
